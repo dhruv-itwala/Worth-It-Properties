@@ -1,30 +1,29 @@
-// src/api/api.endpoints.js
 const API = {
   // AUTH
-  GOOGLE_LOGIN: "/api/v1/auth/google",
-  ME: "/api/v1/auth/me",
-  LOGOUT: "/api/v1/auth/logout",
+  GOOGLE_LOGIN: "/auth/google",
+  ME: "/auth/me",
+  LOGOUT: "/auth/logout",
 
   // USER
-  COMPLETE_PROFILE: "/api/v1/users/complete-profile",
-  PROFILE: "/api/v1/users/me",
-  UPDATE_PHOTO: "/api/v1/users/update-photo",
+  COMPLETE_PROFILE: "/users/complete-profile",
+  PROFILE: "/users/me",
+  UPDATE_PHOTO: "/users/update-photo",
 
   // PROPERTIES
-  ALL_PROPERTIES: "/api/v1/properties",
-  PROPERTY_CREATE: "/api/v1/properties",
-  PROPERTY_SINGLE: (id) => `/api/v1/properties/${id}`,
-  PROPERTY_UPDATE: (id) => `/api/v1/properties/${id}`,
-  PROPERTY_DELETE: (id) => `/api/v1/properties/${id}`,
-  USER_PROPERTIES: (userId) => `/api/v1/properties/user/${userId}`,
+  ALL_PROPERTIES: "/properties",
+  PROPERTY_CREATE: "/properties",
+  PROPERTY_SINGLE: (id) => `/properties/${id}`,
+  PROPERTY_UPDATE: (id) => `/properties/${id}`,
+  PROPERTY_DELETE: (id) => `/properties/${id}`,
+  USER_PROPERTIES: (userId) => `/properties/user/${userId}`,
 
   // SEARCH
-  SEARCH_PROPERTIES: "/api/v1/search/properties",
+  SEARCH_PROPERTIES: "/search/properties",
 
   // WISHLIST
-  WISHLIST: "/api/v1/wishlist",
-  WISHLIST_TOGGLE: (id) => `/api/v1/wishlist/toggle/${id}`,
-  WISHLIST_REMOVE: (id) => `/api/v1/wishlist/${id}`,
+  WISHLIST: "/wishlist",
+  WISHLIST_TOGGLE: (id) => `/wishlist/toggle/${id}`,
+  WISHLIST_REMOVE: (id) => `/wishlist/${id}`,
 };
 
 export default API;
