@@ -1,0 +1,168 @@
+/* ============================
+   FONT IMPORT
+============================ */
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap");
+
+/* ============================
+   CSS RESET
+============================ */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: "Inter", sans-serif;
+  background: var(--bg);
+  color: var(--text);
+}
+
+/* ============================
+   DESIGN TOKENS
+============================ */
+:root {
+  /* BRAND COLORS */
+  --primary: #2563eb;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e40af;
+
+  --secondary: #10b981;
+  --secondary-light: #34d399;
+
+  /* NEUTRALS */
+  --text: #111827;
+  --text-light: #6b7280;
+  --bg: #f8fafc;
+  --white: #ffffff;
+  --border: #e5e7eb;
+
+  /* STATES */
+  --success: #22c55e;
+  --danger: #ef4444;
+  --warning: #eab308;
+
+  /* SHADOWS */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+
+  /* RADII */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+
+  /* SPACING SYSTEM */
+  --gap-sm: 8px;
+  --gap-md: 16px;
+  --gap-lg: 24px;
+  --gap-xl: 40px;
+
+  /* CONTAINER */
+  --container-max-width: 1420px;
+  --container-padding: 16px;
+
+  /* ANIMATIONS */
+  --transition: 0.25s ease;
+}
+
+/* ============================
+   UTILITY CLASSES
+============================ */
+.section {
+  padding: 50px 0;
+}
+
+/* MASTER CONTAINER */
+.masterContainer {
+  width: 100%;
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--container-padding);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+@media (min-width: 768px) {
+  .masterContainer {
+    padding: 0 20px;
+  }
+}
+
+@media (min-width: 1400px) {
+  .masterContainer {
+    padding: 0 32px;
+  }
+}
+
+/* BUTTONS */
+.btn {
+  padding: 12px 20px;
+  background: var(--primary);
+  color: var(--white);
+  border: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: var(--transition);
+  font-weight: 500;
+}
+
+.btn:hover {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-outline {
+  background: transparent;
+  border: 2px solid var(--primary);
+  color: var(--primary);
+}
+
+.btn-outline:hover {
+  background: var(--primary);
+  color: var(--white);
+}
+
+/* INPUT */
+.input {
+  padding: 12px;
+  width: 100%;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  outline: none;
+}
+
+.input:focus {
+  border-color: var(--primary);
+  box-shadow: var(--shadow-sm);
+}
+/* Toastify Premium Theme Override */
+.Toastify__toast {
+  border-radius: var(--radius-md) !important;
+  font-family: "Inter", sans-serif !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+.Toastify__toast--success {
+  background: var(--secondary) !important;
+  color: white !important;
+}
+
+.Toastify__toast--error {
+  background: var(--danger) !important;
+  color: white !important;
+}
+
+.Toastify__toast--info {
+  background: var(--primary) !important;
+  color: white !important;
+}
+
+.Toastify__progress-bar {
+  height: 4px;
+}
