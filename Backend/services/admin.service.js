@@ -13,24 +13,6 @@ class AdminService {
     return admin;
   }
 
-  async login(email, password) {
-    const admin = await Admin.findOne({ email });
-    if (!admin) throw new Error("Invalid credentials");
-    if (admin.banned) throw new Error("Admin is banned");
-
-    const ok = await admin.comparePassword(password);
-    if (!ok) throw new Error("Invalid credentials");
-
-    // generate admin token (use ADMIN_JWT_SECRET inside generateToken call)
-    const token = generateToken(
-      admin._id,
-      process.env.ADMIN_JWT_EXPIRES_IN || "8h"
-    );
-    // NOTE: generateToken uses process.env.JWT_SECRET by default.
-    // For admin we will sign with ADMIN_JWT_SECRET in controller to keep service generic.
-    return admin;
-  }
-
   async listUsers() {
     return User.find().select("-__v");
   }

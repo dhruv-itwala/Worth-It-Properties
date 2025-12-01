@@ -24,13 +24,13 @@ class AuthService {
         name,
         email,
         googleId: sub,
-        avatar: picture,
+        profilePhoto: picture,
         role: "user",
         lastLogin: new Date(),
       });
     } else {
       user.googleId = sub;
-      user.avatar = picture;
+      user.profilePhoto = picture;
       user.lastLogin = new Date();
       await user.save();
     }

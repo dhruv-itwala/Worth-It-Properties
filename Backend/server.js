@@ -92,11 +92,8 @@ const speedLimiter = slowDown({
 });
 
 //enable the rate limiters in production
-// app.use(globalLimiter);
-// app.use(speedLimiter);
-
-// ===== Static Folder =====
-app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use(globalLimiter);
+app.use(speedLimiter);
 
 // ===== DB Connection =====
 connectDB();

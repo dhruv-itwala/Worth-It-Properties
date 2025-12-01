@@ -25,34 +25,32 @@ class UserService {
     );
   }
 
-  async updateProfilePhoto(userId, filePath) {
-    const optimizedImage = await sharp(filePath)
+  async updateProfilePhoto(userId, file) {
+    if (!file) throw new Error("Image file required");
+
+    // Optimize with sharp from BUFFER (not path)
+    const optimizedBuffer = await sharp(file.buffer)
       .resize(300)
-      .jpeg({ quality: 70 })
+      .webp({ quality: 80 })
       .toBuffer();
 
-    const uploadRes = await cloudinary.uploader.upload_stream({
-      resource_type: "image",
-      folder: "worthit/users",
+    // Upload to Cloudinary
+    const result = await new Promise((resolve, reject) => {
+      cloudinary.uploader
+        .upload_stream({ folder: "worthit/users" }, (err, res) => {
+          if (err) reject(err);
+          else resolve(res);
+        })
+        .end(optimizedBuffer);
     });
 
-    return new Promise((resolve, reject) => {
-      const stream = cloudinary.uploader.upload_stream(
-        { folder: "worthit/users" },
-        async (error, result) => {
-          if (error) return reject(error);
+    const user = await User.findByIdAndUpdate(
+      userId,
+      { profilePhoto: result.secure_url },
+      { new: true }
+    );
 
-          const user = await User.findByIdAndUpdate(
-            userId,
-            { profilePhoto: result.secure_url },
-            { new: true }
-          );
-
-          resolve(user);
-        }
-      );
-      stream.end(optimizedImage);
-    });
+    return user;
   }
 }
 
