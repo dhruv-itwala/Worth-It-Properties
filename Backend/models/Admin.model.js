@@ -1,30 +1,24 @@
-// models/Admin.model.js
 import mongoose from "mongoose";
-import bcrypt from "bcrypt";
+import { hashPassword, comparePassword } from "../utils/encryption.js";
 
 const adminSchema = new mongoose.Schema(
   {
     email: { type: String, required: true, unique: true, lowercase: true },
-    password: { type: String, required: true },
+    password: { type: String, required: true, select: false },
     role: { type: String, default: "admin" },
-    banned: { type: Boolean, default: false },
   },
   { timestamps: true }
 );
 
-// Hash password before save
+// hash before save
 adminSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  const salt = await bcrypt.genSalt(10);
-  this.password = await bcrypt.hash(this.password, salt);
+  this.password = await hashPassword(this.password);
   next();
 });
 
-// Compare password utility
-adminSchema.methods.comparePassword = async function (plain = "") {
-  return bcrypt.compare(plain, this.password);
+adminSchema.methods.comparePassword = async function (plain) {
+  return comparePassword(plain, this.password);
 };
 
-const Admin = mongoose.models.Admin || mongoose.model("Admin", adminSchema);
-
-export default Admin;
+export default mongoose.models.Admin || mongoose.model("Admin", adminSchema);

@@ -1,12 +1,12 @@
-// routes/auth.routes.js
 import express from "express";
 import AuthController from "../controllers/auth.controller.js";
 import { authMiddleware } from "../middlewares/auth.middleware.js";
 
-const authRoutes = express.Router();
+const router = express.Router();
 
-authRoutes.post("/google", AuthController.googleLogin);
-authRoutes.get("/me", authMiddleware, AuthController.getMe);
-authRoutes.post("/logout", authMiddleware, AuthController.logout);
+router.post("/google", AuthController.googleLogin); // google token
+router.post("/login", AuthController.login); // email+password (users)
+router.get("/me", authMiddleware, AuthController.getMe); // returns req.user
+router.post("/logout", authMiddleware, AuthController.logout);
 
-export default authRoutes;
+export default router;

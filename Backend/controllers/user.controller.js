@@ -1,4 +1,3 @@
-// controllers/user.controller.js
 import userService from "../services/user.service.js";
 
 class UserController {
@@ -9,33 +8,23 @@ class UserController {
 
   async completeProfile(req, res) {
     try {
+      const fileBuffer = req.file ? req.file.buffer : null;
+      const payload = {
+        ...req.body,
+        fileBuffer,
+        password: req.body.password || null,
+      };
       const updatedUser = await userService.completeProfile(
         req.userId,
-        req.body
+        payload
       );
-
       res.json({
         success: true,
         user: updatedUser,
-        message: "Profile completed successfully",
+        message: "Profile updated",
       });
     } catch (err) {
-      res.status(500).json({ success: false, message: err.message });
-    }
-  }
-
-  async updatePhoto(req, res) {
-    try {
-      if (!req.file)
-        return res.status(400).json({ message: "Image file required" });
-
-      const user = await userService.updateProfilePhoto(
-        req.userId,
-        req.file.path
-      );
-
-      res.json({ success: true, user });
-    } catch (err) {
+      console.error(err);
       res.status(500).json({ success: false, message: err.message });
     }
   }

@@ -1,88 +1,270 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import ApiService from "../../api/api.service";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAuth } from "../../context/AuthContext";
-import { notifyError, notifySuccess } from "../../utils/toast";
+import { motion } from "framer-motion";
 import styles from "./CompleteProfile.module.css";
 
-const CompleteProfile = () => {
-  const { user, loadUser } = useAuth();
+const schema = z
+  .object({
+    name: z.string().min(2, "Enter a valid name"),
+    phone: z.string().min(10, "Enter valid phone"),
+    gender: z.string().optional(),
+    city: z.string().min(2, "Enter valid city"),
+    area: z.string().min(2, "Enter valid area"),
+
+    role: z.enum(["buyer", "owner", "builder", "broker"]),
+
+    companyName: z.string().optional(),
+    companyWebsite: z.string().optional(),
+    experienceYears: z.string().optional(),
+
+    password: z.string().optional(),
+    confirmPassword: z.string().optional(),
+  })
+  .refine(
+    (data) =>
+      (!data.password && !data.confirmPassword) ||
+      data.password === data.confirmPassword,
+    {
+      message: "Passwords do not match",
+      path: ["confirmPassword"],
+    }
+  );
+
+export default function CompleteProfile() {
+  const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    name: user?.name || "",
-    phone: "",
-    city: "",
-    area: "",
-    role: "buyer",
+  const [step, setStep] = useState(0);
+  const [profilePhoto, setProfilePhoto] = useState(null);
+  const [preview, setPreview] = useState(user?.profilePhoto || "");
+
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors, isSubmitting },
+  } = useForm({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      name: user?.name || "",
+      phone: user?.phone || "",
+      gender: user?.gender || "",
+      city: user?.city || "",
+      area: user?.area || "",
+      role: user?.role || "buyer",
+      companyName: user?.companyName || "",
+      companyWebsite: user?.companyWebsite || "",
+      experienceYears: user?.experienceYears || "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
-  const updateForm = (key, value) => {
-    setForm((prev) => ({ ...prev, [key]: value }));
+  const role = watch("role");
+
+  const onPhotoSelected = (e) => {
+    const f = e.target.files?.[0];
+    if (!f) return;
+    setProfilePhoto(f);
+    setPreview(URL.createObjectURL(f));
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const onSubmit = async (data) => {
     try {
-      await ApiService.completeProfile(form);
-      await loadUser();
-      notifySuccess("Profile completed!");
-      navigate("/");
+      const formData = new FormData();
+      // remove empty confirmPassword
+      const { confirmPassword, ...rest } = data;
+      Object.entries(rest).forEach(([k, v]) => {
+        if (v !== undefined && v !== null) formData.append(k, v);
+      });
+
+      if (profilePhoto) formData.append("photo", profilePhoto);
+
+      const updatedUser = await updateProfile(formData);
+      if (updatedUser) navigate("/");
     } catch (err) {
-      notifyError("Failed to update profile");
+      // updateProfile will notify
     }
   };
 
   return (
-    <div className={styles.container}>
-      <div className={styles.card}>
-        <h2>Complete Your Profile</h2>
+    <div className={styles.wrapper}>
+      <motion.div
+        className={styles.card}
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+        <h2 className={styles.title}>Complete Your Profile</h2>
 
-        <form className={styles.form} onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={form.name}
-            onChange={(e) => updateForm("name", e.target.value)}
-          />
+        <div className={styles.steps}>
+          <div className={`${styles.step} ${step === 0 ? styles.active : ""}`}>
+            Basic Details
+          </div>
+          <div className={`${styles.step} ${step === 1 ? styles.active : ""}`}>
+            Location
+          </div>
+          <div className={`${styles.step} ${step === 2 ? styles.active : ""}`}>
+            Role Details
+          </div>
+        </div>
 
-          <input
-            type="text"
-            placeholder="Phone Number"
-            value={form.phone}
-            onChange={(e) => updateForm("phone", e.target.value)}
-          />
+        <form onSubmit={handleSubmit(onSubmit)}>
+          {step === 0 && (
+            <div className={styles.section}>
+              <label className={styles.label}>Profile Photo</label>
+              <div className={styles.photoBox}>
+                <img
+                  src={
+                    preview ||
+                    "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                  }
+                  className={styles.profilePreview}
+                />
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={onPhotoSelected}
+                />
+              </div>
 
-          <input
-            type="text"
-            placeholder="City"
-            value={form.city}
-            onChange={(e) => updateForm("city", e.target.value)}
-          />
+              <label className={styles.label}>Full Name</label>
+              <input className={styles.input} {...register("name")} />
+              {errors.name && (
+                <p className={styles.error}>{errors.name.message}</p>
+              )}
 
-          <input
-            type="text"
-            placeholder="Area"
-            value={form.area}
-            onChange={(e) => updateForm("area", e.target.value)}
-          />
+              <label className={styles.label}>Phone Number</label>
+              <input className={styles.input} {...register("phone")} />
+              {errors.phone && (
+                <p className={styles.error}>{errors.phone.message}</p>
+              )}
 
-          <select
-            value={form.role}
-            onChange={(e) => updateForm("role", e.target.value)}
-          >
-            <option value="buyer">Buyer</option>
-            <option value="owner">Owner</option>
-            <option value="builder">Builder</option>
-          </select>
+              <label className={styles.label}>Gender</label>
+              <select className={styles.input} {...register("gender")}>
+                <option value="">Prefer not to say</option>
+                <option value="male">Male</option>
+                <option value="female">Female</option>
+              </select>
 
-          <button type="submit" className={styles.submitBtn}>
-            Save Profile
-          </button>
+              <label className={styles.label}>Password (Optional)</label>
+              <input
+                type="password"
+                className={styles.input}
+                {...register("password")}
+              />
+              <label className={styles.label}>Confirm Password</label>
+              <input
+                type="password"
+                className={styles.input}
+                {...register("confirmPassword")}
+              />
+              {errors.confirmPassword && (
+                <p className={styles.error}>{errors.confirmPassword.message}</p>
+              )}
+            </div>
+          )}
+
+          {step === 1 && (
+            <div className={styles.section}>
+              <label className={styles.label}>City</label>
+              <input className={styles.input} {...register("city")} />
+              {errors.city && (
+                <p className={styles.error}>{errors.city.message}</p>
+              )}
+
+              <label className={styles.label}>Area / Locality</label>
+              <input className={styles.input} {...register("area")} />
+              {errors.area && (
+                <p className={styles.error}>{errors.area.message}</p>
+              )}
+            </div>
+          )}
+
+          {step === 2 && (
+            <div className={styles.section}>
+              <label className={styles.label}>You are a:</label>
+              <select className={styles.input} {...register("role")}>
+                <option value="buyer">Buyer</option>
+                <option value="owner">Owner</option>
+                <option value="builder">Builder</option>
+                <option value="broker">Broker</option>
+              </select>
+
+              {role === "builder" && (
+                <>
+                  <label className={styles.label}>Company Name</label>
+                  <input
+                    className={styles.input}
+                    {...register("companyName")}
+                  />
+
+                  <label className={styles.label}>Website</label>
+                  <input
+                    className={styles.input}
+                    {...register("companyWebsite")}
+                  />
+
+                  <label className={styles.label}>Experience (Years)</label>
+                  <input
+                    className={styles.input}
+                    {...register("experienceYears")}
+                  />
+                </>
+              )}
+
+              {role === "broker" && (
+                <>
+                  <label className={styles.label}>Business Name</label>
+                  <input
+                    className={styles.input}
+                    {...register("companyName")}
+                  />
+
+                  <label className={styles.label}>Experience (Years)</label>
+                  <input
+                    className={styles.input}
+                    {...register("experienceYears")}
+                  />
+                </>
+              )}
+            </div>
+          )}
+
+          <div className={styles.controls}>
+            {step > 0 && (
+              <button
+                type="button"
+                className={styles.backBtn}
+                onClick={() => setStep((s) => s - 1)}
+              >
+                Back
+              </button>
+            )}
+
+            {step < 2 ? (
+              <button
+                type="button"
+                className={styles.nextBtn}
+                onClick={() => setStep((s) => s + 1)}
+              >
+                Next
+              </button>
+            ) : (
+              <button
+                type="submit"
+                className={styles.submitBtn}
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "Saving..." : "Finish Profile"}
+              </button>
+            )}
+          </div>
         </form>
-      </div>
+      </motion.div>
     </div>
   );
-};
-
-export default CompleteProfile;
+}

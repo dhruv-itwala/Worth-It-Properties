@@ -6,8 +6,8 @@ export default defineConfig({
   plugins: [react()],
   server: {
     headers: {
-      "Cross-Origin-Opener-Policy": "same-origin-allow-popups",
-      "Cross-Origin-Embedder-Policy": "credentialless",
+      "Cross-Origin-Opener-Policy": "unsafe-none",
+      "Cross-Origin-Embedder-Policy": "unsafe-none",
     },
     port: 3031,
   },

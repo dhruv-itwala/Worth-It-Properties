@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Google Login Test</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+  </head>
+
+  <body>
+    <h2>Google Login Backend Test</h2>
+
+    <div id="buttonDiv"></div>
+
+    <pre
+      id="output"
+      style="margin-top: 20px; background: #f0f0f0; padding: 20px"
+    ></pre>
+
+    <script>
+      // ---- STEP 1: Initialize Google Button ----
+      window.onload = function () {
+        google.accounts.id.initialize({
+          client_id:
+            "1091090397776-p4esd5it466n1s5vufogdf9c0rh9ndsu.apps.googleusercontent.com",
+          callback: handleGoogleResponse,
+        });
+
+        google.accounts.id.renderButton(document.getElementById("buttonDiv"), {
+          theme: "outline",
+          size: "large",
+        });
+      };
+
+      // ---- STEP 2: Handle Google Token ----
+      async function handleGoogleResponse(response) {
+        const output = document.getElementById("output");
+
+        output.innerText =
+          "Google Token Received:\n\n" + JSON.stringify(response, null, 2);
+
+        // Now send token to your backend
+        const backendResponse = await fetch(
+          "http://localhost:3030/api/v1/auth/google",
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            credentials: "include", // <-- important for cookies
+            body: JSON.stringify({ token: response.credential }),
+          }
+        );
+
+        const data = await backendResponse.json();
+
+        output.innerText +=
+          "\n\nBackend Response:\n\n" + JSON.stringify(data, null, 2);
+      }
+    </script>
+  </body>
+</html>

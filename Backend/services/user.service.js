@@ -1,56 +1,79 @@
-// services/user.service.js
 import User from "../models/User.model.js";
 import cloudinary from "../config/cloudinary.config.js";
 import sharp from "sharp";
+import { hashPassword } from "../utils/encryption.js";
 
 class UserService {
   async getUserById(id) {
-    return await User.findById(id).select("-googleId -__v");
+    return User.findById(id).select("-googleId -__v");
   }
 
   async completeProfile(userId, data) {
-    const { name, phone, role, city, area } = data;
+    const {
+      name,
+      phone,
+      whatsappNumber,
+      gender,
+      about,
+      companyName,
+      companyWebsite,
+      experienceYears,
+      businessName,
+      reraId,
+      role,
+      city,
+      state,
+      area,
+      fileBuffer,
+      password,
+    } = data;
 
-    return await User.findByIdAndUpdate(
-      userId,
-      {
-        name,
-        phone,
-        role,
-        city,
-        area,
-        profileCompleted: true,
-      },
-      { new: true }
-    );
-  }
+    const updateData = {
+      name,
+      phone,
+      whatsappNumber,
+      gender,
+      about,
+      companyName,
+      companyWebsite,
+      experienceYears,
+      businessName,
+      reraId,
+      city,
+      state,
+      area,
+      profileCompleted: true,
+    };
 
-  async updateProfilePhoto(userId, file) {
-    if (!file) throw new Error("Image file required");
+    // ----- ROLE UPDATE -----
+    if (role && ["buyer", "owner", "builder", "broker"].includes(role)) {
+      updateData.role = role;
+    }
 
-    // Optimize with sharp from BUFFER (not path)
-    const optimizedBuffer = await sharp(file.buffer)
-      .resize(300)
-      .webp({ quality: 80 })
-      .toBuffer();
+    // ----- IMAGE UPLOAD -----
+    if (fileBuffer) {
+      const optimized = await sharp(fileBuffer)
+        .resize(300)
+        .webp({ quality: 80 })
+        .toBuffer();
 
-    // Upload to Cloudinary
-    const result = await new Promise((resolve, reject) => {
-      cloudinary.uploader
-        .upload_stream({ folder: "worthit/users" }, (err, res) => {
-          if (err) reject(err);
-          else resolve(res);
-        })
-        .end(optimizedBuffer);
-    });
+      const uploadRes = await new Promise((resolve, reject) => {
+        cloudinary.uploader
+          .upload_stream({ folder: "worthit/users" }, (err, result) =>
+            err ? reject(err) : resolve(result)
+          )
+          .end(optimized);
+      });
 
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { profilePhoto: result.secure_url },
-      { new: true }
-    );
+      updateData.profilePhoto = uploadRes.secure_url;
+    }
 
-    return user;
+    // ----- PASSWORD CHANGE (optional) -----
+    if (password) {
+      updateData.password = await hashPassword(password);
+    }
+
+    return User.findByIdAndUpdate(userId, updateData, { new: true });
   }
 }
 

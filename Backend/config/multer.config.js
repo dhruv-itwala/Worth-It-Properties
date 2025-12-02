@@ -1,14 +1,10 @@
-// config/multer.config.js
 import multer from "multer";
 
 const storage = multer.memoryStorage();
 
 export const upload = multer({
   storage,
-  limits: {
-    // single file size limit (general). We'll also enforce image/video separate limits in service.
-    fileSize: 12 * 1024 * 1024, // 12 MB general per-file cap
-  },
+  limits: { fileSize: 12 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
     const allowedVideoTypes = [
@@ -16,21 +12,16 @@ export const upload = multer({
       "video/quicktime",
       "video/x-matroska",
     ];
-
     if (file.mimetype.startsWith("image/")) {
-      if (!allowedImageTypes.includes(file.mimetype)) {
-        return cb(new Error("Only JPEG, PNG or WEBP images are allowed"));
-      }
-      return cb(null, true);
+      return allowedImageTypes.includes(file.mimetype)
+        ? cb(null, true)
+        : cb(new Error("Only JPEG/PNG/WEBP allowed"));
     }
-
     if (file.mimetype.startsWith("video/")) {
-      if (!allowedVideoTypes.includes(file.mimetype)) {
-        return cb(new Error("Only MP4, MOV or MKV videos are allowed"));
-      }
-      return cb(null, true);
+      return allowedVideoTypes.includes(file.mimetype)
+        ? cb(null, true)
+        : cb(new Error("Only MP4/MOV/MKV allowed"));
     }
-
     cb(new Error("Unsupported file type"));
   },
 });

@@ -18,10 +18,9 @@ class AdminService {
   }
 
   async updateUserRole(userId, updates) {
-    const { role, ban } = updates;
+    const { role } = updates;
     const updateObj = {};
     if (role) updateObj.role = role;
-    if (ban !== undefined) updateObj.banned = !!ban;
     const user = await User.findByIdAndUpdate(userId, updateObj, { new: true });
     return user;
   }
