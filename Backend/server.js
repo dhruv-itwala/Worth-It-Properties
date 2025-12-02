@@ -23,6 +23,7 @@ import {
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import { ping } from "./utils/ping.js";
 // import propertyRoutes/searchRoutes/wishlistRoutes as needed
 
 const app = express();
@@ -62,6 +63,9 @@ const speedLimiter = slowDown({
 // app.use(speedLimiter);
 
 await connectDB?.(); // ensure connectDB returns a promise in config/index.js
+
+// ping api
+app.get("/api/ping", ping);
 
 const VERSION = process.env.API_VERSION || "v1";
 app.get(`/api/${VERSION}`, (req, res) => res.send("API Working"));
