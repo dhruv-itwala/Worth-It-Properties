@@ -1,0 +1,45 @@
+.galleryWrapper {
+  width: 100%;
+}
+
+.mainDisplay {
+  width: 100%;
+  height: 360px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.image,
+.video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.thumbnails {
+  display: flex;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 8px;
+}
+
+.thumbBox {
+  width: 90px;
+  height: 70px;
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  border: 2px solid transparent;
+}
+
+.thumbBox.active {
+  border-color: #3498db;
+}
+
+.thumbImg,
+.thumbVideo {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}

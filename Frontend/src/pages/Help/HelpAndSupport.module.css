@@ -1,0 +1,177 @@
+.pageWrapper {
+  padding: 40px 10px;
+  max-width: 900px;
+  margin: 0 auto;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--heading-text);
+  margin-bottom: 10px;
+}
+
+.updated {
+  color: var(--secondary-text);
+  font-size: 14px;
+  margin-bottom: 30px;
+}
+
+.section {
+  margin-bottom: 30px;
+}
+
+.section h2 {
+  font-size: 20px;
+  color: var(--primary-color);
+  margin-bottom: 10px;
+}
+
+.section p {
+  font-size: 15px;
+  line-height: 1.7;
+  color: var(--primary-text);
+}
+
+.list {
+  padding-left: 20px;
+}
+
+.list li {
+  margin-bottom: 8px;
+  line-height: 1.6;
+}
+
+/* Contact & Issue Forms */
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.form input,
+.form textarea {
+  background: var(--input);
+  border: 1px solid var(--border);
+  padding: 12px;
+  border-radius: 8px;
+  color: var(--primary-text);
+}
+
+.form textarea {
+  height: 130px;
+  resize: none;
+}
+
+.form button {
+  background: var(--primary-color);
+  color: #000;
+  padding: 12px;
+  border-radius: 8px;
+  border: none;
+  font-weight: 600;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.form button:hover {
+  background: var(--btn-hover);
+}
+
+.infoBox {
+  margin-top: 18px;
+  border-left: 3px solid var(--primary-color);
+  padding-left: 12px;
+  color: var(--primary-text);
+}
+
+/* FAQ Styles */
+.faqContainer {
+  margin-top: 20px;
+}
+
+.faqItem {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  background: var(--input);
+  overflow: hidden;
+}
+
+.faqQuestion {
+  padding: 14px;
+  font-weight: 600;
+  font-size: 16px;
+  cursor: pointer;
+  color: var(--primary-text);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.faqQuestion:hover {
+  color: var(--primary-color);
+}
+
+.faqAnswer {
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border-top: 1px solid var(--border);
+  font-size: 15px;
+  line-height: 1.6;
+  color: var(--secondary-text);
+}
+
+/* Support Center Cards */
+.supportGrid {
+  margin-top: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+}
+
+.supportCard {
+  flex: 1;
+  min-width: 250px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  padding: 18px;
+  border-radius: 10px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.25);
+}
+
+.supportCard h3 {
+  color: var(--primary-color);
+  margin-bottom: 10px;
+  font-size: 18px;
+}
+
+.supportCard a {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--primary-text);
+  font-size: 14px;
+  transition: 0.25s ease;
+}
+
+.supportCard a:hover {
+  color: var(--primary-color);
+  padding-left: 4px;
+}
+
+.subtitle {
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: var(--secondary-text);
+}
+
+@media (max-width: 600px) {
+  .title {
+    font-size: 26px;
+  }
+
+  .section h2 {
+    font-size: 18px;
+  }
+}

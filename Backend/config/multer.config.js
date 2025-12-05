@@ -1,27 +1,16 @@
+// config/multer.config.js
 import multer from "multer";
+import path from "path";
 
-const storage = multer.memoryStorage();
+const storage = multer.diskStorage({
+  destination: "uploads/",
+  filename: (req, file, cb) => {
+    const unique = Date.now() + "-" + Math.round(Math.random() * 1e9);
+    cb(null, unique + path.extname(file.originalname));
+  },
+});
 
 export const upload = multer({
   storage,
-  limits: { fileSize: 12 * 1024 * 1024 },
-  fileFilter: (req, file, cb) => {
-    const allowedImageTypes = ["image/jpeg", "image/png", "image/webp"];
-    const allowedVideoTypes = [
-      "video/mp4",
-      "video/quicktime",
-      "video/x-matroska",
-    ];
-    if (file.mimetype.startsWith("image/")) {
-      return allowedImageTypes.includes(file.mimetype)
-        ? cb(null, true)
-        : cb(new Error("Only JPEG/PNG/WEBP allowed"));
-    }
-    if (file.mimetype.startsWith("video/")) {
-      return allowedVideoTypes.includes(file.mimetype)
-        ? cb(null, true)
-        : cb(new Error("Only MP4/MOV/MKV allowed"));
-    }
-    cb(new Error("Unsupported file type"));
-  },
+  limits: { fileSize: 80 * 1024 * 1024 }, // 80MB raw upload
 });

@@ -1,0 +1,215 @@
+/***************************************
+ GLOBAL WRAPPER
+****************************************/
+.wrapper {
+  min-height: calc(100vh - 80px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+  background: var(--background);
+}
+
+/***************************************
+ CARD (Glass Premium Layout)
+****************************************/
+.card {
+  width: 100%;
+  max-width: 720px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(10px);
+  padding: 40px 36px;
+  border-radius: 16px;
+  box-shadow: 0 0 35px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 0.5s ease;
+}
+
+.title {
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--heading-text);
+  margin-bottom: 25px;
+  text-align: center;
+}
+
+/***************************************
+ STEP INDICATOR
+****************************************/
+.steps {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 35px;
+}
+
+.step {
+  flex: 1;
+  padding: 12px 10px;
+  text-align: center;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  color: var(--subtitle-text);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  transition: 0.25s ease;
+}
+
+.step.active {
+  background: rgba(212, 175, 55, 0.15);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  transform: translateY(-2px);
+}
+
+/***************************************
+ FORM SECTION
+****************************************/
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.label {
+  font-weight: 600;
+  color: var(--primary-text);
+  margin-bottom: -4px;
+}
+
+/***************************************
+ INPUTS
+****************************************/
+.input {
+  padding: 14px;
+  border-radius: 8px;
+  background: var(--input);
+  border: 1px solid var(--border);
+  color: var(--primary-text);
+  outline: none;
+  font-size: 15px;
+  transition: 0.25s ease;
+}
+
+.input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 6px rgba(212, 175, 55, 0.35);
+}
+
+.input::placeholder {
+  color: var(--secondary-text);
+}
+
+/***************************************
+ ERROR
+****************************************/
+.error {
+  color: #ff6b6b;
+  font-size: 0.85rem;
+  margin-top: -6px;
+}
+
+/***************************************
+ PROFILE PHOTO SECTION
+****************************************/
+.photoBox {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.profilePreview {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 8px rgba(212, 175, 55, 0.4);
+}
+
+/***************************************
+ BUTTON CONTROLS
+****************************************/
+.controls {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 30px;
+  margin-bottom: 10px;
+}
+
+.nextBtn,
+.backBtn,
+.submitBtn {
+  padding: 14px 26px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 15px;
+  transition: 0.25s ease;
+}
+
+/* BACK BUTTON */
+.backBtn {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--primary-text);
+  border: 1px solid var(--border);
+}
+
+.backBtn:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+/* NEXT BUTTON */
+.nextBtn {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.nextBtn:hover {
+  background: var(--btn-hover);
+}
+
+/* SUBMIT BUTTON */
+.submitBtn {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.submitBtn:hover {
+  background: var(--btn-hover);
+}
+
+.submitBtn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/***************************************
+ ANIMATIONS
+****************************************/
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/***************************************
+ RESPONSIVE
+****************************************/
+@media (max-width: 600px) {
+  .steps {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .controls {
+    flex-direction: column;
+    gap: 12px;
+  }
+}

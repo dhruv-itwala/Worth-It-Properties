@@ -1,0 +1,52 @@
+.container {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.title {
+  font-size: 26px;
+  margin-bottom: 20px;
+}
+
+.profileCard {
+  background: #fff;
+  padding: 20px;
+  border-radius: 12px;
+  display: flex;
+  gap: 20px;
+  border: 1px solid #eee;
+}
+
+.avatar {
+  width: 140px;
+  height: 140px;
+  border-radius: 12px;
+  object-fit: cover;
+}
+
+.info {
+  flex: 1;
+  display: grid;
+  grid-template-columns: 120px 1fr;
+  gap: 10px;
+}
+
+.info label {
+  font-weight: 600;
+  margin-top: 6px;
+}
+
+.actions {
+  margin-top: 20px;
+}
+
+.editBtn,
+.saveBtn {
+  padding: 10px 20px;
+  background: #3498db;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}

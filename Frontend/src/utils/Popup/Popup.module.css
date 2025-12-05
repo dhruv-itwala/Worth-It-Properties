@@ -1,0 +1,40 @@
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 5000;
+}
+
+.popup {
+  background: white;
+  padding: 22px;
+  width: 360px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.actions {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.cancel {
+  padding: 8px 16px;
+  background: #bbb;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.confirm {
+  padding: 8px 16px;
+  background: #e74c3c;
+  border: none;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}

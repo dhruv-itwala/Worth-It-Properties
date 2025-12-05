@@ -13,18 +13,14 @@ import events from "events";
 // avoid MaxListenersExceededWarning in dev
 events.EventEmitter.defaultMaxListeners = 20;
 
-import {
-  corsOptions,
-  connectDB,
-  compressionConfig,
-  SERVER_CONFIG,
-} from "./config/index.js";
+import { corsOptions, connectDB, SERVER_CONFIG } from "./config/index.js";
 
 import authRoutes from "./routes/auth.routes.js";
 import userRoutes from "./routes/user.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import propertyRoutes from "./routes/property.routes.js";
+import wishlistRoutes from "./routes/wishlist.routes.js";
 import { ping } from "./utils/ping.js";
-// import propertyRoutes/searchRoutes/wishlistRoutes as needed
 
 const app = express();
 const __filename = fileURLToPath(import.meta.url);
@@ -36,7 +32,6 @@ app.use(helmet());
 app.use(express.json({ limit: process.env.REQUEST_BODY_LIMIT || "20mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
-app.use(compressionConfig || ((req, res, next) => next()));
 
 app.use(cors(corsOptions));
 app.use(hpp());
@@ -59,23 +54,42 @@ const speedLimiter = slowDown({
   delayMs: () => 500,
 });
 
+// apply global rate limiter and speed limiter
 // app.use(globalLimiter);
 // app.use(speedLimiter);
 
-await connectDB?.(); // ensure connectDB returns a promise in config/index.js
+await connectDB?.();
 
 // ping api
 app.get("/api/ping", ping);
 
+// API versioning
 const VERSION = process.env.API_VERSION || "v1";
+
+// health check
 app.get(`/api/${VERSION}`, (req, res) => res.send("API Working"));
 
 // app.use(`/api/${VERSION}/auth`, authLimiter, authRoutes);
+// -------------------- AUTH ROUTES --------------------
 app.use(`/api/${VERSION}/auth`, authRoutes);
+
+// -------------------- USER ROUTES --------------------
 app.use(`/api/${VERSION}/users`, userRoutes);
+
+// -------------------- ADMIN ROUTES --------------------
 app.use(`/api/${VERSION}/admin`, adminRoutes);
 
-// 404
+// -------------------- PROPERTY ROUTES --------------------
+app.use(`/api/${VERSION}/properties`, propertyRoutes);
+
+// -------------------- SEARCH ROUTES --------------------
+import searchRoutes from "./routes/search.routes.js";
+app.use(`/api/${VERSION}/search`, searchRoutes);
+
+// -------------------- WISHLIST ROUTES --------------------
+app.use(`/api/${VERSION}/wishlist`, wishlistRoutes);
+
+// 404 handler
 app.use((req, res) =>
   res.status(404).json({ success: false, message: "Route not found" })
 );
@@ -88,6 +102,7 @@ app.use((err, req, res, next) => {
     .json({ success: false, message: err.message || "Internal Server Error" });
 });
 
+// start server
 app.listen(SERVER_CONFIG.PORT, "0.0.0.0", () => {
   const { local, lan, ping } = SERVER_CONFIG.getURLs();
   console.log("=======================================");
