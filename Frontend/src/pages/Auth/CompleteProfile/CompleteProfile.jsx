@@ -7,20 +7,16 @@ import { useAuth } from "../../../context/AuthContext";
 import { motion } from "framer-motion";
 import styles from "./CompleteProfile.module.css";
 
-const schema = z
+/* ------------------------------
+    STEPWISE SCHEMAS
+--------------------------------*/
+
+// Step 0 – Basic
+const step0Schema = z
   .object({
     name: z.string().min(2, "Enter a valid name"),
     phone: z.string().min(10, "Enter valid phone"),
     gender: z.string().optional(),
-    city: z.string().min(2, "Enter valid city"),
-    area: z.string().min(2, "Enter valid area"),
-
-    role: z.enum(["buyer", "owner", "builder", "broker"]),
-
-    companyName: z.string().optional(),
-    companyWebsite: z.string().optional(),
-    experienceYears: z.string().optional(),
-
     password: z.string().optional(),
     confirmPassword: z.string().optional(),
   })
@@ -34,6 +30,25 @@ const schema = z
     }
   );
 
+// Step 1 – Location
+const step1Schema = z.object({
+  city: z.string().min(2, "Enter valid city"),
+  area: z.string().min(2, "Enter valid area"),
+});
+
+// Step 2 – Role
+const step2Schema = z.object({
+  role: z.enum(["buyer", "owner", "builder", "broker"]),
+  companyName: z.string().optional(),
+  companyWebsite: z.string().optional(),
+  experienceYears: z.string().optional(),
+});
+
+/* ------------------------------
+    FULL SCHEMA (FINAL SUBMIT)
+--------------------------------*/
+const fullSchema = step0Schema.merge(step1Schema).merge(step2Schema);
+
 export default function CompleteProfile() {
   const { user, updateProfile } = useAuth();
   const navigate = useNavigate();
@@ -46,9 +61,11 @@ export default function CompleteProfile() {
     register,
     handleSubmit,
     watch,
+    trigger,
     formState: { errors, isSubmitting },
   } = useForm({
-    resolver: zodResolver(schema),
+    resolver: zodResolver(fullSchema),
+    mode: "onSubmit",
     defaultValues: {
       name: user?.name || "",
       phone: user?.phone || "",
@@ -62,10 +79,44 @@ export default function CompleteProfile() {
       password: "",
       confirmPassword: "",
     },
+    shouldUnregister: false,
   });
 
   const role = watch("role");
 
+  /* ------------------------------
+        VALIDATE CURRENT STEP
+  --------------------------------*/
+  const validateStep = async () => {
+    if (step === 0)
+      return await trigger([
+        "name",
+        "phone",
+        "gender",
+        "password",
+        "confirmPassword",
+      ]);
+    if (step === 1) return await trigger(["city", "area"]);
+    if (step === 2)
+      return await trigger([
+        "role",
+        "companyName",
+        "companyWebsite",
+        "experienceYears",
+      ]);
+  };
+
+  /* ------------------------------
+        NEXT BUTTON HANDLER
+  --------------------------------*/
+  const handleNext = async () => {
+    const ok = await validateStep();
+    if (ok) setStep((s) => s + 1);
+  };
+
+  /* ------------------------------
+        IMAGE PREVIEW
+  --------------------------------*/
   const onPhotoSelected = (e) => {
     const f = e.target.files?.[0];
     if (!f) return;
@@ -73,21 +124,22 @@ export default function CompleteProfile() {
     setPreview(URL.createObjectURL(f));
   };
 
+  /* ------------------------------
+        FINAL SUBMISSION
+  --------------------------------*/
   const onSubmit = async (data) => {
     try {
       const formData = new FormData();
-      // remove empty confirmPassword
       const { confirmPassword, ...rest } = data;
-      Object.entries(rest).forEach(([k, v]) => {
-        if (v !== undefined && v !== null) formData.append(k, v);
-      });
+
+      Object.entries(rest).forEach(([k, v]) => formData.append(k, v));
 
       if (profilePhoto) formData.append("photo", profilePhoto);
 
       const updatedUser = await updateProfile(formData);
       if (updatedUser) navigate("/");
     } catch (err) {
-      // updateProfile will notify
+      console.error(err);
     }
   };
 
@@ -100,6 +152,7 @@ export default function CompleteProfile() {
       >
         <h2 className={styles.title}>Complete Your Profile</h2>
 
+        {/* ---------------------- STEPS HEADER ---------------------- */}
         <div className={styles.steps}>
           <div className={`${styles.step} ${step === 0 ? styles.active : ""}`}>
             Basic Details
@@ -112,7 +165,9 @@ export default function CompleteProfile() {
           </div>
         </div>
 
+        {/* ---------------------- FORM ---------------------- */}
         <form onSubmit={handleSubmit(onSubmit)}>
+          {/* STEP 0 */}
           {step === 0 && (
             <div className={styles.section}>
               <label className={styles.label}>Profile Photo</label>
@@ -156,6 +211,7 @@ export default function CompleteProfile() {
                 className={styles.input}
                 {...register("password")}
               />
+
               <label className={styles.label}>Confirm Password</label>
               <input
                 type="password"
@@ -168,6 +224,7 @@ export default function CompleteProfile() {
             </div>
           )}
 
+          {/* STEP 1 */}
           {step === 1 && (
             <div className={styles.section}>
               <label className={styles.label}>City</label>
@@ -184,6 +241,7 @@ export default function CompleteProfile() {
             </div>
           )}
 
+          {/* STEP 2 */}
           {step === 2 && (
             <div className={styles.section}>
               <label className={styles.label}>You are a:</label>
@@ -234,6 +292,7 @@ export default function CompleteProfile() {
             </div>
           )}
 
+          {/* ---------------------- CONTROLS ---------------------- */}
           <div className={styles.controls}>
             {step > 0 && (
               <button
@@ -249,7 +308,11 @@ export default function CompleteProfile() {
               <button
                 type="button"
                 className={styles.nextBtn}
-                onClick={() => setStep((s) => s + 1)}
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleNext();
+                }}
               >
                 Next
               </button>

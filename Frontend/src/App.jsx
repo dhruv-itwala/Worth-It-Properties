@@ -39,7 +39,14 @@ function App() {
         {/* Auth Routes */}
         <Route path="/login" element={<UserLogin />} />
         <Route path="/admin" element={<AdminLogin />} />
-        <Route path="/complete-profile" element={<CompleteProfile />} />
+        <Route
+          path="/complete-profile"
+          element={
+            <ProtectedRoute profileRequired={false}>
+              <CompleteProfile />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Home Route */}
         <Route
