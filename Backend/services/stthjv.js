@@ -75,7 +75,7 @@ class PropertyService {
       throw { status: 400, message: "Video file too large. Max 10-12MB raw." };
     }
 
-    console.log("START CREATE:", hrTimeMs(t0));
+    console.log("[BACKEND] START CREATE:", hrTimeMs(t0));
 
     // 1) Compress images in parallel (map -> compressImage). compressImage should return path
     const tCompressStart = process.hrtime();
@@ -87,7 +87,7 @@ class PropertyService {
       }))
     );
     const compressedResults = await Promise.all(compressPromises);
-    console.log("ALL_IMAGES_COMPRESSED:", hrTimeMs(tCompressStart));
+    console.log("[BACKEND] ALL_IMAGES_COMPRESSED:", hrTimeMs(tCompressStart));
 
     // 2) Upload images to Cloudinary in parallel
     const uploadedImages = [];
@@ -109,13 +109,18 @@ class PropertyService {
           });
           // remove local compressed file asap
           await fs.unlink(compressedPath).catch(() => {});
-          console.log(`IMG_${idx + 1}_UPLOAD: ${hrTimeMs(tUploadImagesStart)}`);
+          console.log(
+            `[BACKEND] IMG_${idx + 1}_UPLOAD: ${hrTimeMs(tUploadImagesStart)}`
+          );
           return res;
         }
       );
 
       await Promise.all(uploadPromises);
-      console.log("ALL_IMAGE_UPLOADS_DONE:", hrTimeMs(tUploadImagesStart));
+      console.log(
+        "[BACKEND] ALL_IMAGE_UPLOADS_DONE:",
+        hrTimeMs(tUploadImagesStart)
+      );
     } catch (err) {
       // cleanup local compressed files and throw
       await Promise.all(
@@ -123,7 +128,7 @@ class PropertyService {
           fs.unlink(r.compressedPath).catch(() => {})
         )
       );
-      console.error("IMAGE UPLOAD FAILED:", err);
+      console.error("[BACKEND] IMAGE UPLOAD FAILED:", err);
       throw err;
     }
 
@@ -133,17 +138,17 @@ class PropertyService {
       const tVidStart = process.hrtime();
       try {
         const compressedVideoPath = await compressVideo(videoArr[0].path);
-        console.log("VIDEO_COMPRESS:", hrTimeMs(tVidStart));
+        console.log("[BACKEND] VIDEO_COMPRESS:", hrTimeMs(tVidStart));
         const videoUploadStart = process.hrtime();
         const vres = await cloudinary.uploader.upload(compressedVideoPath, {
           folder: "worthit/properties/videos",
           resource_type: "video",
         });
         uploadedVideoUrl = vres.secure_url;
-        console.log("VIDEO_UPLOAD:", hrTimeMs(videoUploadStart));
+        console.log("[BACKEND] VIDEO_UPLOAD:", hrTimeMs(videoUploadStart));
         await fs.unlink(compressedVideoPath).catch(() => {});
       } catch (err) {
-        console.error("VIDEO UPLOAD FAILED:", err);
+        console.error("[BACKEND] VIDEO UPLOAD FAILED:", err);
         // attempt cleanup of uploaded images (best-effort)
         for (const up of uploadedImages) {
           if (up.public_id)
@@ -168,8 +173,8 @@ class PropertyService {
         images: imagesForDB,
         video: uploadedVideoUrl,
       });
-      console.log("DB_SAVE:", hrTimeMs(tDbStart));
-      console.log("TOTAL_CREATE_TIME:", hrTimeMs(t0));
+      console.log("[BACKEND] DB_SAVE:", hrTimeMs(tDbStart));
+      console.log("[BACKEND] TOTAL_CREATE_TIME:", hrTimeMs(t0));
       return property;
     } catch (err) {
       // cleanup cloudinary uploaded resources if DB save failed
@@ -187,7 +192,7 @@ class PropertyService {
             .destroy(pid, { resource_type: "video" })
             .catch(() => {});
       }
-      console.error("DB SAVE FAILED:", err);
+      console.error("[BACKEND] DB SAVE FAILED:", err);
       throw err;
     } finally {
       // final cleanup of raw image uploads (original tmp files) - compressed files already removed
@@ -258,7 +263,7 @@ class PropertyService {
       throw { status: 400, message: "Video file too large. Max 10-12MB raw." };
     }
 
-    console.log("START UPDATE:", hrTimeMs(t0));
+    console.log("[BACKEND] START UPDATE:", hrTimeMs(t0));
 
     // 1) Upload new images (compress + upload in parallel)
     const uploadedNewImages = [];
@@ -271,7 +276,7 @@ class PropertyService {
         }))
       );
       const compressedResults = await Promise.all(compressPromises);
-      console.log("NEW_IMAGES_COMPRESSED:", hrTimeMs(tCompressStart));
+      console.log("[BACKEND] NEW_IMAGES_COMPRESSED:", hrTimeMs(tCompressStart));
 
       const tUploadStart = process.hrtime();
       try {
@@ -290,7 +295,7 @@ class PropertyService {
           }
         );
         await Promise.all(uplPromises);
-        console.log("NEW_IMAGES_UPLOADED:", hrTimeMs(tUploadStart));
+        console.log("[BACKEND] NEW_IMAGES_UPLOADED:", hrTimeMs(tUploadStart));
       } catch (err) {
         // cleanup compressed + newImages raw
         await Promise.all(
@@ -298,7 +303,7 @@ class PropertyService {
             fs.unlink(r.compressedPath).catch(() => {})
           )
         );
-        console.error("NEW IMAGE UPLOAD FAIL:", err);
+        console.error("[BACKEND] NEW IMAGE UPLOAD FAIL:", err);
         throw err;
       } finally {
         // remove raw temp files
@@ -314,14 +319,14 @@ class PropertyService {
       try {
         const tVidStart = process.hrtime();
         const compressedVideoPath = await compressVideo(newVideoArr[0].path);
-        console.log("NEW_VIDEO_COMPRESS:", hrTimeMs(tVidStart));
+        console.log("[BACKEND] NEW_VIDEO_COMPRESS:", hrTimeMs(tVidStart));
         const tVidUpload = process.hrtime();
         const vres = await cloudinary.uploader.upload(compressedVideoPath, {
           folder: "worthit/properties/videos",
           resource_type: "video",
         });
         uploadedVideoUrl = vres.secure_url;
-        console.log("NEW_VIDEO_UPLOAD:", hrTimeMs(tVidUpload));
+        console.log("[BACKEND] NEW_VIDEO_UPLOAD:", hrTimeMs(tVidUpload));
         await fs.unlink(compressedVideoPath).catch(() => {});
         await fs.unlink(newVideoArr[0].path).catch(() => {});
       } catch (err) {
@@ -332,7 +337,7 @@ class PropertyService {
               .destroy(up.public_id, { resource_type: "image" })
               .catch(() => {});
         }
-        console.error("NEW VIDEO UPLOAD FAILED:", err);
+        console.error("[BACKEND] NEW VIDEO UPLOAD FAILED:", err);
         throw err;
       }
     }
@@ -390,8 +395,8 @@ class PropertyService {
       );
       if (!updated)
         throw { status: 403, message: "Not authorized to update property" };
-      console.log("DB_UPDATE:", hrTimeMs(tDbStart));
-      console.log("TOTAL_UPDATE_TIME:", hrTimeMs(t0));
+      console.log("[BACKEND] DB_UPDATE:", hrTimeMs(tDbStart));
+      console.log("[BACKEND] TOTAL_UPDATE_TIME:", hrTimeMs(t0));
       return updated;
     } catch (err) {
       // rollback: delete newly uploaded images/video if any
@@ -408,7 +413,7 @@ class PropertyService {
             .destroy(pid, { resource_type: "video" })
             .catch(() => {});
       }
-      console.error("UPDATE FAILED:", err);
+      console.error("[BACKEND] UPDATE FAILED:", err);
       throw err;
     }
   }

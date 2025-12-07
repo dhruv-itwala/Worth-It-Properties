@@ -36,25 +36,25 @@ body {
 -------------------------------------------------- */
 :root {
   /* Night Sky / Blueish Black Background */
-  --background: #0a0f1a; /* deep blue-black */
+  --background: #696969; /* deep blue-black */
 
   /* Golden Luxury Accents */
   --primary-color: #d4af37; /* Gold */
   --secondary-color: #967c2c; /* Darker muted gold */
 
   /* Text Colors */
-  --primary-text: #e6e9ef; /* Very soft white */
-  --heading-text: #f5f6fa; /* Brighter for headings */
-  --subtitle-text: #c5c7cd; /* Soft grey */
-  --secondary-text: #9ea0a8; /* Lighter secondary */
+  --primary-text: #000000; /* Very soft white */
+  --heading-text: #000000; /* Brighter for headings */
+  --subtitle-text: #000000; /* Soft grey */
+  --secondary-text: #000000; /* Lighter secondary */
 
   /* Buttons */
   --btn-color: #d4af37;
   --btn-hover: #b8922f;
 
   /* Inputs */
-  --input: #121826; /* Blue-black slightly lighter than bg */
-  --textarea: #121826;
+  --input: #b5b5b5; /* Blue-black slightly lighter than bg */
+  --textarea: #b5b5b5;
   --checkbox: #d4af37;
   --radio-btn: #d4af37;
 

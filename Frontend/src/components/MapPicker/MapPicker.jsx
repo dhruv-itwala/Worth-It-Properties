@@ -1,105 +1,114 @@
+// rafce
 import React, { useEffect, useRef } from "react";
 
 export default function MapPicker({ value = {}, onChange }) {
   const inputRef = useRef(null);
-  const mapElement = useRef(null);
   const mapRef = useRef(null);
   const markerRef = useRef(null);
+  const mapDivRef = useRef(null);
 
-  useEffect(() => {
-    if (!window.__googleMapsLoading) {
-      window.__googleMapsLoading = true;
-      loadGoogleMapsScript(initMap);
-    } else {
-      // script already loading or loaded
-      if (window.google && window.google.maps) initMap();
-    }
+  const loadScript = () => {
+    return new Promise((resolve) => {
+      if (window.google && window.google.maps) return resolve();
+      if (document.getElementById("gmap-script")) {
+        // script already added, wait a tick
+        const tryReady = () =>
+          window.google && window.google.maps
+            ? resolve()
+            : setTimeout(tryReady, 50);
+        return tryReady();
+      }
 
-    function loadGoogleMapsScript(callback) {
       const script = document.createElement("script");
+      script.id = "gmap-script";
       script.src = `https://maps.googleapis.com/maps/api/js?key=${
         import.meta.env.VITE_GOOGLE_MAPS_API_KEY
-      }&libraries=places&callback=__googleMapsCallback`;
-
+      }&libraries=places`;
       script.async = true;
       script.defer = true;
-
-      window.__googleMapsCallback = () => {
-        if (callback) callback();
-      };
-
+      script.onload = () => resolve();
       document.head.appendChild(script);
-    }
+    });
+  };
 
-    function initMap() {
-      if (!window.google || !window.google.maps) return;
+  useEffect(() => {
+    let mounted = true;
 
-      const initialLat = value.latitude || 19.076;
-      const initialLng = value.longitude || 72.8777;
+    const init = async () => {
+      await loadScript();
+      if (!mounted) return;
 
-      const position = { lat: initialLat, lng: initialLng };
+      const lat = Number(value.latitude) || 19.076;
+      const lng = Number(value.longitude) || 72.8777;
 
-      mapRef.current = new window.google.maps.Map(mapElement.current, {
-        center: position,
+      const map = new window.google.maps.Map(mapDivRef.current, {
+        center: { lat, lng },
         zoom: 14,
       });
 
-      markerRef.current = new window.google.maps.Marker({
-        position,
-        map: mapRef.current,
+      const marker = new window.google.maps.Marker({
+        map,
         draggable: true,
+        position: { lat, lng },
       });
 
-      // When marker dragged
-      markerRef.current.addListener("dragend", (e) => {
-        const lat = e.latLng.lat();
-        const lng = e.latLng.lng();
+      mapRef.current = map;
+      markerRef.current = marker;
 
-        const geocoder = new window.google.maps.Geocoder();
-        geocoder.geocode({ location: { lat, lng } }, (results) => {
-          const formatted =
-            results?.[0]?.formatted_address || "Unknown Location";
+      const geocoder = new window.google.maps.Geocoder();
+
+      marker.addListener("dragend", (e) => {
+        const la = e.latLng.lat();
+        const ln = e.latLng.lng();
+        geocoder.geocode({ location: { lat: la, lng: ln } }, (r) => {
           onChange?.({
-            latitude: lat,
-            longitude: lng,
-            formattedAddress: formatted,
+            latitude: la,
+            longitude: ln,
+            formattedAddress: r?.[0]?.formatted_address || "",
           });
         });
       });
 
-      // Autocomplete
-      const auto = new window.google.maps.places.Autocomplete(inputRef.current);
-      auto.addListener("place_changed", () => {
-        const place = auto.getPlace();
-        if (!place.geometry) return;
-
-        const lat = place.geometry.location.lat();
-        const lng = place.geometry.location.lng();
-
-        mapRef.current.panTo({ lat, lng });
-        markerRef.current.setPosition({ lat, lng });
+      const autocomplete = new window.google.maps.places.Autocomplete(
+        inputRef.current
+      );
+      autocomplete.addListener("place_changed", () => {
+        const p = autocomplete.getPlace();
+        if (!p.geometry) return;
+        const la = p.geometry.location.lat();
+        const ln = p.geometry.location.lng();
+        map.panTo({ lat: la, lng: ln });
+        marker.setPosition({ lat: la, lng: ln });
 
         onChange?.({
-          latitude: lat,
-          longitude: lng,
-          formattedAddress: place.formatted_address,
+          latitude: la,
+          longitude: ln,
+          formattedAddress: p.formatted_address,
         });
       });
-    }
+    };
+
+    init();
+
+    return () => (mounted = false);
   }, []);
 
   return (
     <div>
       <input
         ref={inputRef}
-        type="text"
         placeholder="Search location..."
-        style={{ width: "100%", padding: "8px", marginBottom: "10px" }}
+        style={{
+          width: "100%",
+          padding: "8px",
+          marginBottom: "10px",
+          borderRadius: 8,
+          border: "1.5px solid #ccc",
+        }}
       />
-
       <div
-        ref={mapElement}
-        style={{ width: "100%", height: "300px", borderRadius: "8px" }}
+        ref={mapDivRef}
+        style={{ width: "100%", height: 300, borderRadius: 8 }}
       />
     </div>
   );

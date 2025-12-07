@@ -39,6 +39,7 @@ const ApiService = {
   updateProperty: (id, formData) =>
     api.put(API.PROPERTY(id), formData, {
       headers: { "Content-Type": "multipart/form-data" },
+      transformRequest: (data) => data,
     }),
 
   // Search + Wishlist

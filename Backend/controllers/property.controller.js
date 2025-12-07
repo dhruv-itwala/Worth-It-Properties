@@ -9,44 +9,63 @@ class PropertyController {
         req.body,
         req.files
       );
-      res.json({ success: true, property });
+      return res.json({ success: true, property });
     } catch (err) {
       console.error("PROPERTY CREATE ERROR:", err);
-      res.status(500).json({ success: false, message: err.message });
+      return res
+        .status(err.status || 500)
+        .json({ success: false, message: err.message });
     }
   }
 
   async getAll(req, res) {
     const data = await propertyService.getAll(req.query);
-    res.json({ success: true, ...data });
+    return res.json({ success: true, ...data });
   }
 
   async getOne(req, res) {
     const property = await propertyService.getOne(req.params.id);
-    property
-      ? res.json({ success: true, property })
-      : res.status(404).json({ message: "Property not found" });
+    if (!property)
+      return res
+        .status(404)
+        .json({ success: false, message: "Property not found" });
+    return res.json({ success: true, property });
   }
 
   async getUserProperties(req, res) {
     const properties = await propertyService.getUserProperties(
       req.params.userId
     );
-    res.json({ success: true, properties });
+    return res.json({ success: true, properties });
   }
 
   async update(req, res) {
-    const property = await propertyService.update(
-      req.params.id,
-      req.userId,
-      req.body
-    );
-    res.json({ success: true, property });
+    try {
+      const property = await propertyService.update(
+        req.params.id,
+        req.userId,
+        req.body,
+        req.files
+      );
+      return res.json({ success: true, property });
+    } catch (err) {
+      console.error("PROPERTY UPDATE ERROR:", err);
+      return res
+        .status(err.status || 500)
+        .json({ success: false, message: err.message });
+    }
   }
 
   async delete(req, res) {
-    await propertyService.delete(req.params.id, req.userId);
-    res.json({ success: true, message: "Property deleted" });
+    try {
+      await propertyService.delete(req.params.id, req.userId);
+      return res.json({ success: true, message: "Property deleted" });
+    } catch (err) {
+      console.error("PROPERTY DELETE ERROR:", err);
+      return res
+        .status(err.status || 500)
+        .json({ success: false, message: err.message });
+    }
   }
 }
 

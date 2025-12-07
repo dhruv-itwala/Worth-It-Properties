@@ -104,11 +104,15 @@ app.use((err, req, res, next) => {
 
 // start server
 app.listen(SERVER_CONFIG.PORT, "0.0.0.0", () => {
-  const { local, lan, ping } = SERVER_CONFIG.getURLs();
+  const { local, lan, ping, frontendlan, frontendlocal } =
+    SERVER_CONFIG.getURLs();
   console.log("=======================================");
   console.log(`🔥 Worth It Properties Backend Running`);
   console.log(`🔗 Local: ${local}`);
   console.log(`🌍 LAN:   ${lan}`);
   console.log(`🩺 Ping: ${ping}`);
+  console.log("=======================================");
+  console.log(`🌐 Frontend LAN: ${frontendlan}`);
+  console.log(`🏠 Frontend Local: ${frontendlocal}`);
   console.log("=======================================");
 });

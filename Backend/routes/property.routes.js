@@ -22,7 +22,18 @@ router.get("/", PropertyController.getAll);
 router.get("/:id", PropertyController.getOne);
 router.get("/user/:userId", PropertyController.getUserProperties);
 
-router.put("/:id", authMiddleware, PropertyController.update);
+// Accept files on update as well
+router.put(
+  "/:id",
+  authMiddleware,
+  requireRole("owner", "builder", "broker"),
+  upload.fields([
+    { name: "images", maxCount: 8 },
+    { name: "video", maxCount: 1 },
+  ]),
+  PropertyController.update
+);
+
 router.delete("/:id", authMiddleware, PropertyController.delete);
 
 export default router;

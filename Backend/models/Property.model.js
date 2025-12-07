@@ -60,8 +60,9 @@ const propertySchema = new mongoose.Schema(
     isVerified: { type: Boolean, default: false }, // manual verification
     views: { type: Number, default: 0 },
 
-    images: [{ type: String }], // Cloudinary URLs
-    video: { type: String }, // Cloudinary URL
+    // change in Property.model.js
+    images: [{ type: String }],
+    video: { type: String },
 
     postedBy: {
       type: mongoose.Schema.Types.ObjectId,
@@ -81,13 +82,13 @@ propertySchema.index({
 });
 
 // Single field indexes
+propertySchema.index({ city: 1 });
+propertySchema.index({ locality: 1 });
+propertySchema.index({ propertyType: 1 });
 propertySchema.index({ price: 1 });
 propertySchema.index({ bhk: 1 });
-propertySchema.index({ propertyType: 1 });
-propertySchema.index({ furnishing: 1 });
-propertySchema.index({ status: 1 });
-propertySchema.index({ city: 1 });
-propertySchema.index({ postedBy: 1 });
+propertySchema.index({ transactionType: 1 });
+propertySchema.index({ postedBy: 1 }); // for user properties page
 
 export default mongoose.models.Property ||
   mongoose.model("Property", propertySchema);
